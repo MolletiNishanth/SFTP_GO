@@ -1,7 +1,7 @@
 package main
 
 import (
-	
+	_ "main.go/docs"							
 	"net/http"
 	 "net"
 	 "fmt"
@@ -20,7 +20,26 @@ import (
 	"path/filepath"
 	"mime/multipart"
 	"time"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 )
+// @title SFTP TO GCS API 
+// @version 1.0
+// @description This is an API which takes input from the api trigger and checks if a text file is present and sends the data to GCS
+// @termsOfService demo.com
+
+// @contact.name API Support
+// @contact.url http://demo.com/support
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.basic BasicAuth
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 const (
 	projectID  = "gcp-infra-test-321021"  // FILL IN WITH YOURS
 	bucketName = "nishanth_bucket" // FILL IN WITH YOURS
@@ -251,8 +270,52 @@ func (c *ClientUploader) UploadFile(file multipart.File, object string) error {
 	return nil
 }
 func main()  {
-	router := gin.Default()
-	 router.GET("/pullfile/:id",filesById)
-	 router.Run("localhost:8080")
+	// router := gin.Default()
+	// router.GET("/", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, gin.H{"data": "Welcome To Sample program swagger"})
+	// })
+	// v1 := router.Group("")
+	// {
+	// 	acc := v1.Group("/functions")
+	// 	{
+	// 		acc.GET("/pullfile/:id",filesById)
+	// 	}
+	// }
+	//  router.GET("/pullfile/:id",filesById)
+	//  router.GET("/swagger/*any",ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//  router.Run("localhost:8080")
+	r :=setupRouter()
+	_ =r.Run("localhost:8080")
+	log.Println("router")
 
 }
+func setupRouter() *gin.Engine {
+
+	r := gin.New()
+
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": "Welcome To Sample program swagger"})
+	})
+
+	v1 := r.Group("/")
+	{
+		accounts := v1.Group("/")
+		{
+			// accounts.POST("/create", controller.CreateAccount)
+			// accounts.PATCH("/update/:id", controller.UpdateAccount)
+			// accounts.DELETE("/delete/:id", controller.DeleteAccount)
+				fmt.Println("account entered")
+				accounts.GET("/pullfile/:id",filesById)
+				fmt.Println("account exited")
+
+		}
+	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	return r
+
+}
+
+
+

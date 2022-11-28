@@ -1,0 +1,82 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+    url: http://demo.com/support
+  description: This is an API which takes input from the api trigger and checks if
+    a text file is present and sends the data to GCS
+  termsOfService: demo.com
+  title: SFTP TO GCS API
+  version: "1.0"
+paths: 
+  /account/create:
+    post:
+      consumes:
+      - application/json
+      description: creates Resource directory
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Creates a account
+      tags:
+      - Accounts
+  /pullfile/{name}:
+    get:
+      consumes:
+      - application/json
+      description: pulls the file data 
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Creates a account
+      tags:
+      - Accounts
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  BasicAuth:
+    type: basic
+swagger: "2.0"
