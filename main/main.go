@@ -7,6 +7,7 @@ import (
 	 "fmt"
 	 "os"
 	// "io/ioutil"
+	"encoding/json"
      "log"
 	"strings"
 	"context"
@@ -68,19 +69,33 @@ func init() {
 	}
 
 }
+type response struct{
+	Server string `json:"server"`
+	Source string `json:"source"`
+	Destination string `json:"destination"`
+}
+type info struct {
+    Data response
+}
 type files struct {
 	ID       string `json:"id"`
 	Title    string `json:"title"`
 	Author   string `json:"author"`
 	Quantity int    `json:"quantity"`
 }
+var sourceFile string
+var myBody response
+var i info
 
 func filesById(c *gin.Context) {
-	filess := c.Param("id")
+	fmt.Println("source: ",sourceFile)
+	fmt.Println(i.Data.Source)
+	filess:=i.Data.Source
+//	filess:="sample.txt"
+//	filess := c.Param("id")
 	_, err := getfilesById(filess)
-
-	if filess=="sample.txt" {
-		c.IndentedJSON(http.StatusOK, gin.H{"message": "File found."})
+	if _,err:=os.Stat(filess); err==nil{
+		//c.IndentedJSON(http.StatusOK, gin.H{"message": "File found."})
 		// f, err := c.FormFile("file_input")
 		// if err != nil {
 		// 	c.JSON(http.StatusInternalServerError, gin.H{
@@ -89,7 +104,7 @@ func filesById(c *gin.Context) {
 		// 	return
 		// }
 
-		blobFile, err := /*f.Open()*/ os.Open("sample.txt")
+		blobFile, err := /*f.Open()*/ os.Open(filess)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -97,7 +112,7 @@ func filesById(c *gin.Context) {
 			return
 		}
 
-		err = uploader.UploadFile(blobFile, "sample.txt")			// "./sample.txt" is put in place of f.Filename
+		err = uploader.UploadFile(blobFile, filess)			// "./sample.txt" is put in place of f.Filename
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -107,6 +122,7 @@ func filesById(c *gin.Context) {
 
 		c.JSON(200, gin.H{
 			"message": "success",
+	//		"message":"OK",
 		})
 		return
 	}
@@ -117,10 +133,12 @@ func filesById(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message ": "File not found "})
 }
 
+
+
 func getfilesById(id string) ( *files, error) {
 	
-	if _, err := os.Stat("sample.txt"); err == nil {
-		if "sample.txt"==id {                           //how to typecast id into file type 
+	if _, err := os.Stat(id); err == nil {
+//		if "sample.txt"==id {                           //how to typecast id into file type 
 		fmt.Println("File exists !!! ");
 
 		user := "Nishanth, Molleti"
@@ -181,7 +199,7 @@ func getfilesById(id string) ( *files, error) {
 		downloadFile(*sc, "./remote.txt", "./local.txt")
 		
 		
-	 }
+//	 }
 	 } else {
 		
 		fmt.Printf("File does not exist");
@@ -269,6 +287,7 @@ func (c *ClientUploader) UploadFile(file multipart.File, object string) error {
 
 	return nil
 }
+
 func main()  {
 	// router := gin.Default()
 	// router.GET("/", func(c *gin.Context) {
@@ -284,6 +303,18 @@ func main()  {
 	//  router.GET("/pullfile/:id",filesById)
 	//  router.GET("/swagger/*any",ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//  router.Run("localhost:8080")
+	myBody := `{"data":{"server":"localhost","source":"download.txt","destination":"nishanths_bucket"}}`
+//	json.Unmarshal([]byte(myBody), &response)
+//	var i info
+	fmt.Println(myBody)
+    if err := json.Unmarshal([]byte(myBody), &i); err != nil {
+        fmt.Println("ugh: ", err)
+    }
+
+    fmt.Println("info: ", i)
+	fmt.Println(i.Data.Source)
+	sourceFile:=i.Data.Source
+	fmt.Println(sourceFile)
 	r :=setupRouter()
 	_ =r.Run("localhost:8080")
 	log.Println("router")
@@ -292,9 +323,9 @@ func main()  {
 func setupRouter() *gin.Engine {
 
 	r := gin.New()
-
+//	fmt.Printf("source :",i.Data.Source)
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": "Welcome To Sample program swagger"})
+		c.JSON(http.StatusOK, gin.H{"body":i})
 	})
 
 	v1 := r.Group("/")
@@ -305,7 +336,9 @@ func setupRouter() *gin.Engine {
 			// accounts.PATCH("/update/:id", controller.UpdateAccount)
 			// accounts.DELETE("/delete/:id", controller.DeleteAccount)
 				fmt.Println("account entered")
-				accounts.GET("/pullfile/:id",filesById)
+			//	accounts.GET("/pullfile/:id",filesById)				//works as a get request in this case 
+//			accounts.GET("/pullfile",filesById)
+			accounts.POST("/pullfile",filesById)				// works as a post request in this case 
 				fmt.Println("account exited")
 
 		}

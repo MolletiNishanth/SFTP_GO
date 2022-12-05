@@ -10,8 +10,8 @@ info:
   title: SFTP TO GCS API
   version: "1.0"
 paths: 
-  /account/create:
-    post:
+  /:
+    get:
       consumes:
       - application/json
       description: creates Resource directory
@@ -41,8 +41,39 @@ paths:
       summary: Creates a account
       tags:
       - Accounts
-  /pullfile/{name}:
+  /pullfile:
     get:
+      consumes:
+      - application/json
+      description: pulls the file data 
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Creates a account
+      tags:
+      - Accounts
+#    /pullfile/{name}:
+    post:
       consumes:
       - application/json
       description: pulls the file data 

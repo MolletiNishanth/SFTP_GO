@@ -76,8 +76,8 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/account/create": {
-            "post": {
+        "/": {
+            "get": {
                 "description": "creates Resource directory",
                 "consumes": [
                     "application/json"
@@ -123,8 +123,53 @@ var doc = `{
                 }
             }
         },
-        "/pullfile/{name}": {
+        "/pullfile": {
             "get": {
+                "description": "Tries to get the file data ",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Tries to get the file data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
                 "description": "Tries to get the file data ",
                 "consumes": [
                     "application/json"
@@ -170,6 +215,7 @@ var doc = `{
                 }
             }
         },
+        
         
     },
     "securityDefinitions": {
